@@ -1,5 +1,7 @@
-#include <exception>
 #include <iostream>
+#include <cmath>
+#include <cstdlib>
+#include <cstdio>
 #include "matrix.hpp"
 
 double* matrix::dvector(int i, int j)
@@ -140,5 +142,122 @@ void matrix::matrix_product(double **a, double **b, double **c,
                 c[i][j] += a[i][k] * b[k][j];
             }
         }
+    }
+}
+
+// L1ノルムの計算 a[m...n]
+double matrix::vector_norm_L1(double *a, int m, int n)
+{
+    double norm = 0.0;
+    for (int i = m; i <= n; ++i)
+    {
+        norm += fabs(a[i]);
+    }
+
+    return norm;
+}
+
+// L2ノルムの計算 a[m...n]
+double matrix::vector_norm_L2(double *a, int m, int n)
+{
+    double norm = 0.0;
+    for (int i = m; i <= n; ++i)
+    {
+        norm += a[i] * a[i];
+    }
+    norm = sqrt(norm);
+
+    return norm;
+}
+
+// 最大値ノルムの計算 a[m...n]
+double matrix::vector_norm_max(double *a, int m, int n)
+{
+    int tmp = n - m + 1; // 全要素数の計算
+    for (int i = m; i <= n; ++i)
+    {
+        a[i] = fabs(a[i]);
+    }
+
+    /* 並び変え 先頭アドレスがmだけずれていることに注意 */
+    qsort(a + m, tmp, sizeof(a[0]), double_comp);
+
+    return a[n];
+}
+
+// 行列のL1ノルムの計算
+// |A|_{L1} = \max_{1 <= j <= n}\sum_{i=1}^{n}|a_{ij}|
+double matrix::matrix_norm_L1(double **a, int m1, int m2, int n1, int n2)
+{
+    double *work = matrix::dvector(n1, n2); // ベクトルwork[n1...n2]
+
+    // 列和の計算
+    for (int j = n1; j <= n2; ++j)
+    { // 列を固定して、各列において...
+        work[j] = 0.0;
+        for (int i = m1; i <= m2; ++i)
+        { // 行方向に和をとる
+            work[j] += fabs(a[i][j]);
+        }
+    }
+
+    int tmp = n2 - n1 + 1; // 列数の計算
+
+    /* 並べ替え 先頭アドレスがn1だけずれている事に注意 */
+    qsort(work + n1, tmp, sizeof(work[0]), double_comp);
+
+    /* 列和の中で最大のものを行列のL1ノルムとして返す */
+    double norm = work[n2];
+    
+    matrix::free_dvector(work, n1);
+
+    return norm;
+}
+
+// 行列の最大値ノルムの計算
+// |A|_{\infty} = \max_{1 <= i <= n}\sum_{j=1}^{n}|a_{ij}|
+double matrix::matrix_norm_max(double **a, int m1, int m2, int n1, int n2)
+{
+    double *work = matrix::dvector(m1, m2); /* ベクトル work[m1...m2] */
+
+    // 行和の計算
+    for (int i = m1; i <= m2; ++i)
+    {
+        for (int j = n1; j <= n2; ++j)
+        {
+            work[i] += fabs(a[i][j]);
+        }
+    }
+
+    int tmp = m2 - m1 + 1; // 行数の計算
+    /* 並べ替え 先頭アドレスがm1だけずれている事に注意 */
+    qsort(work + m1, tmp, sizeof(work[0]), double_comp);
+
+    /* 行和の中で最大のものを行列の最大値ノルムとして返す */
+    double norm = work[m2];
+
+    matrix::free_dvector(work, m1);
+
+    return norm;
+}
+
+
+// 比較関数
+int matrix::double_comp(const void *s1, const void *s2)
+{
+    const double a1 = *((double *)s1); /* (double *)へキャスト */
+    const double a2 = *((double *)s2); /* (double *)へキャスト */
+
+    if (a1 < a2)
+    {
+        return -1;
+    }
+    else if (a1 == a2)
+    {
+        return 0;
+    }
+    else 
+    {
+        return 1;
     }
 }
