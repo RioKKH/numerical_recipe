@@ -102,6 +102,14 @@ void matrix::input_vector(double *b, char c, FILE *fin, FILE *fout, int N)
     }
 }
 
+void matrix::vector_scalar_multiple(double *b, double c, int m, int n)
+{
+    for (int i = m; i <= n; i++)
+    {
+        b[i] *= c;
+    }
+}
+
 // ベクトルa[m...n]とb[m...n]の内積を計算する
 double matrix::inner_product(int m, int n, double *a, double *b)
 {
@@ -141,6 +149,17 @@ void matrix::matrix_product(double **a, double **b, double **c,
             {
                 c[i][j] += a[i][k] * b[k][j];
             }
+        }
+    }
+}
+
+void matrix::matrix_scalar_multiple(double **a, double c, int m1, int m2, int n1, int n2)
+{
+    for (int i = m1; i <= m2; ++i)
+    {
+        for (int j = n1; j <= n2; ++j)
+        {
+            a[i][j] *= c;
         }
     }
 }
@@ -241,7 +260,6 @@ double matrix::matrix_norm_max(double **a, int m1, int m2, int n1, int n2)
     return norm;
 }
 
-
 // 比較関数
 int matrix::double_comp(const void *s1, const void *s2)
 {
@@ -261,3 +279,21 @@ int matrix::double_comp(const void *s1, const void *s2)
         return 1;
     }
 }
+
+
+// 行列の生成 a[nr1...nr2][nl1...nl2]
+double** matrix::produce_matrix(double **a, int nr1, int nr2, int nl1, int nl2)
+{
+    int i, j;
+    srand((unsigned)time(NULL)); /* シードを与える */
+    for (i = nr1; i <= nr2; i++)
+    {
+        for (j = nl1; j <= nl2; j++)
+        {
+            a[i][j] = (double)rand() / (double)RAND_MAX;
+        }
+    }
+
+    return a;
+}
+
