@@ -45,6 +45,9 @@ namespace matrix
     // 行悦の生成 a[nr1...nr2][nl1...nl2]
     double **produce_matrix(double **a, int nr1, int nr2, int nl1, int nl2);
 
+    // ガウスの消去法 (ピボット無し)
+    double *simple_gauss(double **a, double *b, const int N);
+
 }
 
 #endif // _MATRIX_HPP

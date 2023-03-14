@@ -297,3 +297,41 @@ double** matrix::produce_matrix(double **a, int nr1, int nr2, int nl1, int nl2)
     return a;
 }
 
+double* matrix::simple_gauss(double **a, double *b, const int N)
+{
+    int i, j, k;
+    double alpha, tmp;
+
+    /* 前進消去 */
+    for (k = 1; k <= N-1; k++)
+    {
+        for (i = k + 1; i <= N; i++)
+        {
+            // k行目以降の行を処理する際に用いる係数を計算する
+            alpha = - a[i][k] / a[k][k];
+            for(j = k + 1; j <= N; j++)
+            {
+                // k行目のk列目以降を処理する
+                a[i][j] = a[i][j] + alpha * a[k][j];
+            }
+            b[i] = b[i] + alpha * b[k];
+        }
+    }
+
+    /* 後退代入 */
+    // 一番下から処理を開始
+    b[N] = b[N] / a[N][N];
+    for (k = N - 1; k >= 1; k--) // 一つずつ上に上がっていく
+    {
+        tmp = b[k];
+        // \b_{k} \leftarrow \frac{b_{k} - \sum_{j=k+1}^{n}a_{kj}b_{j}}{a_{kk}}
+        for (j = k+1; j <= N; j++)
+        {
+            tmp = tmp - a[k][j] * b[j];
+        }
+        b[k] = tmp / a[k][k];
+    }
+
+    return b;
+}
+
