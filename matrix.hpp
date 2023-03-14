@@ -47,6 +47,9 @@ namespace matrix
 
     // ガウスの消去法 (ピボット無し)
     double *simple_gauss(double **a, double *b, const int N);
+    
+    // 部分ピボット選択付きガウスの消去法
+    double *gauss(double **a, double *b, const int N);
 
 }
 

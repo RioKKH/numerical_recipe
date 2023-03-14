@@ -335,3 +335,71 @@ double* matrix::simple_gauss(double **a, double *b, const int N)
     return b;
 }
 
+double* matrix::gauss(double **a, double *b, const int N)
+{
+    int i, j, k, ip;
+    double alpha, tmp;
+    double amax, eps = pow(2.0, -50.0); // eps = 2^{-50}とする
+
+    for (k = 1; k <= N-1; k++)
+    {
+        /* ピボットの選択 */
+        amax = fabs(a[k][k]); // k行目k列をamaxとしておく。
+        ip = k; // k行目以降で最大の要素を持つ行の数を格納する変数
+        for (i = k + 1; i <= N; i++)
+        {
+            if (fabs(a[i][k]) > amax)
+            {
+                amax = fabs(a[i][k]);
+                ip = i;
+            }
+        }
+        /* 正則性の判定 */
+        if (amax < eps)
+        {
+            printf("入力した行列は正則ではない\n");
+        }
+
+        /* 行交換 */
+        if (ip != k)
+        {
+            for (j = k; j <= N; j++)
+            {
+                // よくある2つの変数の入れ替えをj列目以降のすべての列について実施する
+                tmp = a[k][j];
+                a[k][j] = a[ip][j];
+                a[ip][j] = tmp;
+            }
+            // これも同様に2つの変数の入れ替えアルゴリズム
+            tmp = b[k];
+            b[k] = b[ip];
+            b[ip] = tmp;
+        }
+        // ここまでがピボット選択処理になる。これ以降はsimple_gauss()と同様の処理になる
+        // 前進消去処理をする前にピボット選択処理で行の並べ替えがあることに注意すること
+        // 前進消去
+        for (i = k+1; i <= N; i++)
+        {
+            alpha = - a[i][k]/a[k][k];
+            for (j = k+1; j <= N; j++)
+            {
+                a[i][j] = a[i][j] + alpha * a[k][j];
+            }
+            b[i] = b[i] + alpha * b[k];
+        }
+    }
+
+    // 後退代入
+    b[N] = b[N]/a[N][N];
+    for (k = N-1; k >= 1; k--)
+    {
+        tmp = b[k];
+        for (j = k+1; j <= N; j++)
+        {
+            tmp = tmp - a[k][j] * b[j];
+        }
+        b[k] = tmp / a[k][k];
+    }
+
+    return b;
+}
